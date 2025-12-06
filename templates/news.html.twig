@@ -20,7 +20,9 @@
 
 <div class="pagination">
     {% for page in 1..pages %}
-        <a href="/?page={{ page }}">{{ page }}</a>
+        <a href="/?page={{ page }}" {% if current_page == page %}class="active"{% endif %}>
+            {{ page }}
+        </a>
     {% endfor %}
 </div>
 </body>

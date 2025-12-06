@@ -39,7 +39,8 @@ class NewsController
     
         return $view->render($response, 'news.html.twig', [
             'news' => $news,
-            'pages' => $pages
+            'pages' => $pages,
+            'current_page' => $page
         ]);
     }
 }
