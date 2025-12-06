@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>News</title>
+    <link href="style.css" rel="stylesheet">
+</head>
+<body>
+
+<h1>News List</h1>
+
+<div class="container">
+    {% for item in news %}
+        <div class="news">
+            <h4>{{ item.title }}</h4>
+            <small>{{ item.created_at }}</small>
+            <p>{{ item.content }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    {% for page in 1..pages %}
+        <a href="/?page={{ page }}">{{ page }}</a>
+    {% endfor %}
+</div>
+</body>
+</html>
