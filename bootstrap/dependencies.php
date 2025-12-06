@@ -27,4 +27,16 @@ $container->set(PDO::class, function () use ($settings) {
     return $pdo;
 });
 
+$container->set(Redis::class, function () use ($settings) {
+    $host = $settings['redis']['host'];
+    $port = $settings['redis']['port'];
+    $password = $settings['redis']['password'];
+     
+    $redis = new Redis();
+    $redis->connect($host, $port);
+    $redis->auth($password);
+
+    return $redis;
+});
+
 return $container;

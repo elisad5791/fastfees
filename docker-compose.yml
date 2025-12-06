@@ -9,7 +9,7 @@ services:
     command: 
       --init-file /init.sql
     volumes:
-      - data:/var/lib/mysql
+      - mysql_data:/var/lib/mysql
       - ./init.sql:/init.sql
       - ./custom.conf:/etc/mysql/conf.d
     expose:
@@ -17,5 +17,15 @@ services:
     ports:
       - "3309:3306"
 
+  redis:
+    image: redis:7-alpine
+    container_name: redisapp
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --requirepass redispassword
+
 volumes:
-  data:
+  mysql_data:
+  redis_data:
