@@ -23,6 +23,9 @@ $twig = Twig::create(__DIR__ . '/../templates', ['cache' => false]);
 $app->add(TwigMiddleware::create($app, $twig));
 
 $app->get('/', [NewsController::class, 'index']);
+$app->get('/news/{id}', [NewsController::class, 'showNews']);
+$app->get('/category/{id}', [NewsController::class, 'showCategory']);
+$app->get('/tag/{id}', [NewsController::class, 'showTag']);
 $app->get('/auth', [AuthController::class, 'index']);
 $app->post('/submit-name', [AuthController::class, 'submitName']);
 

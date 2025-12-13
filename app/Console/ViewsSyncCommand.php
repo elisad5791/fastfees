@@ -30,7 +30,7 @@ class ViewsSyncCommand extends Command
         try {
             $io->title('Синхронизация просмотров из Redis в MySQL');
             
-            $keys = $this->redis->keys('news:views:page_*');
+            $keys = $this->redis->keys('views:news_*');
             
             if (empty($keys)) {
                 $io->success('Нет данных для синхронизации');
@@ -39,29 +39,19 @@ class ViewsSyncCommand extends Command
             
             $io->text(sprintf('Найдено %d записей для обработки', count($keys)));
             
-            $processed = 0;
-            $failed = 0;
-            
+            $data = [];
             foreach ($keys as $key) {
-                try {
-                    $pageId = str_replace('news:views:page_', '', $key);
-                    $viewsCount = (int) $this->redis->get($key);
-                    
-                    if ($viewsCount > 0) {
-                        $this->updateViews($pageId, $viewsCount);
-                        
-                        $processed++;
-                        if ($processed % 100 === 0) {
-                            $io->text(sprintf('Обработано %d записей...', $processed));
-                        }
-                    }
-                } catch (\Exception $e) {
-                    $failed++;
-                    $io->warning(sprintf('Ошибка при обработке ключа %s: %s', $key, $e->getMessage()));
+                $newsId = str_replace('views:news_', '', $key);
+                $viewsCount = (int) $this->redis->get($key);
+                
+                if ($viewsCount > 0) {
+                    $data[] = ['id' => $newsId, 'views' => $viewsCount];
                 }
             }
+
+            $this->updateViews($data);
             
-            $io->success(sprintf('Синхронизация завершена. Обработано: %d, Ошибок: %d', $processed, $failed));
+            $io->success('Синхронизация завершена.');
             return Command::SUCCESS;
         } catch (\Exception $e) {
             $io->error('Критическая ошибка: ' . $e->getMessage());
@@ -69,18 +59,28 @@ class ViewsSyncCommand extends Command
         }
     }
     
-    private function updateViews($pageId, $viewsCount): void
+    private function updateViews($data): void
     {
-        $sql = "SELECT * FROM pages_views WHERE page_id = :page_id";
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['page_id' => $pageId]);
-        $res = $stmt->fetch();
+        if (empty($data)) {
+            return;
+        }
 
-        $sql = empty($res)
-            ? "INSERT INTO pages_views (page_id, views) VALUES (:page_id, :views)"
-            : "UPDATE pages_views SET views = :views WHERE page_id = :page_id";
+        $sql = "TRUNCATE TABLE news_views";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute();
+
+        $values = [];
+        $params = [];
+
+        foreach ($data as $item) {
+            $values[] = "(?, ?)";
+            $params[] = $item['id'];
+            $params[] = $item['views'];
+        }
+
+        $sql = "INSERT INTO news_views (news_id, views) VALUES " . implode(", ", $values);
 
         $stmt = $this->pdo->prepare($sql);
-        $stmt->execute(['page_id' => $pageId, 'views' => $viewsCount]);
+        $stmt->execute($params);
     }
 }

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tег: {{ title }}</title>
+    <link href="/style.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1>Тег: {{ title }} ({{ message }})</h1>
+    <div class="login">
+        {% if username %}
+            <span>{{ username }}</span>
+        {% else %}
+            <a href="/auth" class="login-link">Войти</a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="back-link">
+    <a href="/">← Назад к списку новостей</a>
+</div>
+
+<div class="category-container">
+    {% for item in news %}
+        <div class="news-item">
+            <div class="news-meta">
+                <small>{{ item.created_at }}</small>
+            </div>
+            <a href="/news/{{ item.id }}" class="news-title">{{ item.title }}</a>
+        </div>
+    {% endfor %}
+</div>
+
+</body>
+</html>
