@@ -45,9 +45,23 @@ h1 {
 }
 
 /* Контейнер */
+.wrapper {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+}
+
+.top {
+    grid-column: 1/2;
+}
+
+.popular-item {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+}
+
 .container {
-    max-width: 1000px;
-    margin: 0 auto;
+    grid-column: 2/5;
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 30px;

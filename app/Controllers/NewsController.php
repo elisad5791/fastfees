@@ -70,14 +70,14 @@ class NewsController
                 $news[] = $item;
             }
 
-            $this->redis->setex($cacheKey, 300, json_encode($news));
+            $this->redis->set($cacheKey, json_encode($news));
             $message = 'бд';
         }
 
         $newsList = [];
         foreach ($news as $item) {
-            $cacheKey = 'views:news_' . $item['id'];
-            $item['views'] = $this->redis->get($cacheKey) ? $this->redis->get($cacheKey) : 0;
+            $views = $this->redis->zscore('news:top', $item['id']);
+            $item['views'] = $views ? $views : 0;
             $newsList[] = $item;
         }
 
@@ -91,9 +91,21 @@ class NewsController
             $stmt->execute();
             $res = $stmt->fetch();
             $count = $res['count'];
-            $this->redis->setex($cacheKey, 300, $count);
+            $this->redis->set($cacheKey, $count);
         }
         $pages = ceil($count / self::NEWS_FOR_PAGE);
+
+        $popularIds = $this->redis->zrevrange('news:top', 0, 4, ['WITHSCORES' => true]);
+        $popular = [];
+        foreach ($popularIds as $id => $score) {
+            $cacheKey = "item:news_$id";
+            $cachedItem = $this->redis->get($cacheKey);
+            if ($cachedItem) {
+                $item = json_decode($cachedItem, true);
+                $item['score'] = round($score);
+                $popular[] = $item;
+            }
+        }
 
         $username = $_SESSION['username'] ?? '';
 
@@ -105,6 +117,7 @@ class NewsController
             'current_page' => $page,
             'message' => $message,
             'username' => $username,
+            'popular' => $popular
         ]);
     }
 
@@ -112,7 +125,7 @@ class NewsController
     {
         $newsId = (int) $args['id'];
 
-        $cacheKey = 'item:news_' . $newsId;
+        $cacheKey = "item:news_$newsId";
         $cachedItem = $this->redis->get($cacheKey);
         $message = '';
         if ($cachedItem) {
@@ -148,12 +161,11 @@ class NewsController
             unset($item['tag_ids']);
             $item['tags'] = $tags;
 
-            $this->redis->setex($cacheKey, 300, json_encode($item));
+            $this->redis->set($cacheKey, json_encode($item));
             $message = 'бд';
         }
 
-        $cacheKey = 'views:news_' . $newsId;
-        $viewsCount = $this->redis->incr($cacheKey);
+        $viewsCount = $this->redis->zincrby('news:top', 1, $newsId);
 
         $username = $_SESSION['username'] ?? '';
 
@@ -184,7 +196,7 @@ class NewsController
             $stmt->execute([$categoryId]);
             $news = $stmt->fetchAll();
 
-            $this->redis->setex($cacheKey, 300, json_encode($news));
+            $this->redis->set($cacheKey, json_encode($news));
             $message = 'бд';
         }
 
@@ -200,7 +212,7 @@ class NewsController
             $data = $stmt->fetch();
             $categoryTitle = $data['title'];
 
-            $this->redis->setex($cacheKey, 300, $categoryTitle);
+            $this->redis->set($cacheKey, $categoryTitle);
         }
 
         $username = $_SESSION['username'] ?? '';
@@ -236,7 +248,7 @@ class NewsController
             $stmt->execute([$tagId]);
             $news = $stmt->fetchAll();
 
-            $this->redis->setex($cacheKey, 300, json_encode($news));
+            $this->redis->set($cacheKey, json_encode($news));
             $message = 'бд';
         }
 
@@ -252,7 +264,7 @@ class NewsController
             $data = $stmt->fetch();
             $tagTitle = $data['title'];
 
-            $this->redis->setex($cacheKey, 300, $tagTitle);
+            $this->redis->set($cacheKey, $tagTitle);
         }
 
         $username = $_SESSION['username'] ?? '';
