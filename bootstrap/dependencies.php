@@ -47,6 +47,10 @@ $container->set(UserService::class, function (ContainerInterface $container) {
     return $userService;
 });
 
+$container->set(LikeService::class, function (ContainerInterface $container) {
+    return new LikeService($container->get(PDO::class), $container->get(Redis::class));
+});
+
 $container->set(CounterMiddleware::class, function (ContainerInterface $container) {
     $counterMiddleware = new CounterMiddleware($container->get(UserService::class));
     return $counterMiddleware;
@@ -55,10 +59,6 @@ $container->set(CounterMiddleware::class, function (ContainerInterface $containe
 $container->set(UserActivityMiddleware::class, function (ContainerInterface $container) {
     $userActivityMiddleware = new UserActivityMiddleware($container->get(Redis::class));
     return $userActivityMiddleware;
-});
-
-$container->set(LikeService::class, function (ContainerInterface $container) {
-    return new LikeService($container->get(PDO::class), $container->get(Redis::class));
 });
 
 return $container;

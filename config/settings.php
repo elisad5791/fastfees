@@ -1,5 +1,4 @@
 <?php
-
 return [
     'database' => [
         'driver' => 'mysql',
@@ -14,10 +13,10 @@ return [
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES => false,
         ]
-        ],
-        'redis' => [
-            'host' => 'localhost',
-            'port' => 6379,
-            'password' => 'redispassword'
-        ]
+    ],
+    'redis' => [
+        'host' => 'localhost',
+        'port' => 6379,
+        'password' => 'redispassword'
+    ]
 ];
