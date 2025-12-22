@@ -39,4 +39,28 @@ class UserRepository
 
         return $likes;
     }
+
+    public function getLike($userId, $newsId)
+    {
+        $sql = "SELECT * FROM users_likes WHERE user_id = ? AND news_id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$userId, $newsId]);
+        $like = $stmt->fetch();
+
+        return $like;
+    }
+
+    public function addLike($userId, $newsId)
+    {
+        $sql = "INSERT INTO users_likes(user_id, news_id) VALUES(?, ?)";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$userId, $newsId]);
+    }
+
+    public function removeLike($userId, $newsId)
+    {
+        $sql = "DELETE FROM users_likes WHERE user_id = ? AND news_id = ?";
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$userId, $newsId]);
+    }
 }

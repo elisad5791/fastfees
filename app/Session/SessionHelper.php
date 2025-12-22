@@ -15,4 +15,10 @@ class SessionHelper
             $_SESSION[$item['key']] = $item['value'];
         }
     }
+
+    public function getUserId()
+    {
+        $userId = $_SESSION['userid'] ?? 0;
+        return $userId;
+    }
 }
