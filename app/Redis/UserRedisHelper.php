@@ -40,13 +40,13 @@ class UserRedisHelper
     public function getRequestCount($ip)
     {
         $key = "rate_limit:$ip";
-        $now = microtime(true);
+        $now = floor(microtime(true));
         $windowStart = $now - 60;
 
-        $this->redis->zremrangebyscore($key, 0, $windowStart);
-        $this->redis->zadd($key, $now, $now);
+        $this->redis->zAdd($key, $now, $now);
         $this->redis->expire($key, 61);
-        $count = $this->redis->zcount($key, $windowStart, $now);
+        $this->redis->zRemRangeByScore($key, 0, $windowStart);
+        $count = $this->redis->zCount($key, $windowStart, $now);
 
         return $count;
     }
