@@ -160,7 +160,7 @@ class NewsRedisHelper
 
     public function getViewsCount($newsId)
     {
-        $viewsCount = $this->redis->zincrby('news:top', 1, $newsId);
+        $viewsCount = $this->redis->zIncrBy('news:top', 1, $newsId);
         return $viewsCount;
     }
 
@@ -205,15 +205,19 @@ class NewsRedisHelper
         $this->redis->set($cacheKey, json_encode($item));
     }
 
-    public function getViewsKeys()
+    public function getViewsData()
     {
-        $keys = $this->redis->keys('views:news_*');
-        return $keys;
-    }
+        $key = 'news:top';
+        $newsIds = $this->redis->zRange($key, 0, -1);
+        if (empty($newsIds)) {
+            return [];
+        }
+        $viewsCounts = $this->redis->zMscore($key, ...$newsIds);
 
-    public function getKey($key)
-    {
-        $val = (int) $this->redis->get($key);
-        return $val;
+        $viewsData = [];
+        foreach ($newsIds as $ind => $newsId) {
+            $viewsData[] = ['id' => $newsId, 'views' => $viewsCounts[$ind]];
+        }
+        return $viewsData;
     }
 }

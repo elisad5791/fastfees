@@ -25,28 +25,16 @@ class ViewsSyncCommand extends Command
         try {
             $io->title('Синхронизация просмотров из Redis в MySQL');
             
-            $keys = $this->newsRedisHelper->getViewsKeys();
+            $data = $this->newsRedisHelper->getViewsData();
             
-            if (empty($keys)) {
+            if (empty($data)) {
                 $io->success('Нет данных для синхронизации');
                 return Command::SUCCESS;
             }
             
-            $io->text(sprintf('Найдено %d записей для обработки', count($keys)));
+            $io->text(sprintf('Найдено %d записей для обработки', count($data)));
             
-            $data = [];
-            foreach ($keys as $key) {
-                $newsId = str_replace('views:news_', '', $key);
-                $viewsCount = $this->newsRedisHelper->getKey($key);
-                
-                if ($viewsCount > 0) {
-                    $data[] = ['id' => $newsId, 'views' => $viewsCount];
-                }
-            }
-
-            if (empty($data)) {
-                $this->newsRepository->updateViews($data);
-            }
+            $this->newsRepository->updateViews($data);
             
             $io->success('Синхронизация завершена.');
             return Command::SUCCESS;
