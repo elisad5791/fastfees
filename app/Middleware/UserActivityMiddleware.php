@@ -20,9 +20,9 @@ class UserActivityMiddleware implements Middleware
         $response = $handler->handle($request);
         
         $userId = $this->sessionHelper->getUserId();
-
-        if ($userId) {
-            $this->userService->trackUserActivity($userId);
+        if (!empty($userId)) {
+            $ip = $request->getServerParams()['REMOTE_ADDR'] ?? '';
+            $this->userService->trackUserActivity($userId, $ip);
         }
         
         return $response;

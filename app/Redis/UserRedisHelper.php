@@ -76,12 +76,27 @@ class UserRedisHelper
         return $dataJson;
     }
 
-    public function trackUserActivity($userId)
+    public function trackUserActivity(int $userId, float $lat, float $lon): void
     {
         $userKey = "user_active:{$userId}";
         $this->redis->setex($userKey, 300, 'active');
+        $userKey = "user_geo_active:{$userId}";
+        $this->redis->setex($userKey, 24 * 60 * 60, 'active');
         $setKey = "active_users";
         $this->redis->sAdd($setKey, $userId);
         $this->redis->expire($setKey, 300);
+
+        if (!empty($lat) && !empty($lon)) {
+            $key = 'userplaces';
+            $this->redis->geoAdd($key, $lon, $lat, $userId);
+            $this->redis->expire($key, 24 * 60 * 60);
+        }
+    }
+
+    public function geoUserExists(int $userId): bool
+    {
+        $key = "user_geo_active:{$userId}";
+        $result = $this->redis->get($key);
+        return (bool) $result;
     }
 }

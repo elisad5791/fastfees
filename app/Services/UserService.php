@@ -26,8 +26,29 @@ class UserService
         return $onlineCount;
     }
 
-    public function trackUserActivity($userId)
+    public function trackUserActivity(int $userId, string $ip): void
     {
-        $this->userRedisHelper->trackUserActivity($userId);
+        $lat = 0;
+        $lon = 0;
+        $geo = $this->userRedisHelper->geoUserExists($userId);
+
+        if (!$geo && $ip == '127.0.0.1') {
+            $res = file_get_contents('https://api.ipify.org');
+            $res = trim($res);
+            $res = filter_var($res, FILTER_VALIDATE_IP);
+            $ip = !empty($res) ? $res : '';
+        }
+
+        if (!empty($ip) && !$geo) { 
+            $url = "http://ip-api.com/json/{$ip}?fields=status,lat,lon";
+            $response = file_get_contents($url);
+            $data = json_decode($response, true);
+            if ($data['status'] == 'success') {
+                $lat = $data['lat'];
+                $lon = $data['lon'];
+            }
+        }
+
+        $this->userRedisHelper->trackUserActivity($userId, $lat, $lon);
     }
 }

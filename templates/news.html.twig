@@ -21,17 +21,31 @@
 </header>
 
 <div class="wrapper">
-    {% if popular %}
-        <div class="top">
-            <h2>Most Popular</h2>
-            {% for item in popular %}
-                <div class="popular-item">
-                    <small>{{ item.created_at }}</small>
-                    <a href="/news/{{ item.id }}" class="news-title">{{ item.title }}</a>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+    <div class="top">
+        {% if popular %}
+            <div>
+                <h2>Most Popular</h2>
+                {% for item in popular %}
+                    <div class="popular-item">
+                        <small>{{ item.created_at }}</small>
+                        <a href="/news/{{ item.id }}" class="news-title">{{ item.title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        {% if popular_city %}
+            <div class="popular-city">
+                <h2>Popular In Your City</h2>
+                {% for item in popular_city %}
+                    <div class="popular-item">
+                        <small>{{ item.created_at }}</small>
+                        <a href="/news/{{ item.id }}" class="news-title">{{ item.title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 
     <div class="container">
         {% for item in news %}

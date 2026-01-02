@@ -60,10 +60,14 @@ h1 {
     grid-column: 1/2;
 }
 
+.popular-city {
+    margin-top: 30px;
+}
+
 .popular-item {
     display: flex;
     flex-direction: column;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 .container {

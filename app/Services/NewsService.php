@@ -134,6 +134,45 @@ class NewsService
         return $popular;
     }
 
+    public function getCityPopular(int $userId): array
+    {
+        if (empty($userId)) {
+            return [];
+        }
+
+        $cachedCityPopular = $this->newsRedisHelper->getCityPopular($userId);
+        if (!empty($cachedCityPopular)) {
+            return $cachedCityPopular;
+        }
+
+        $closestUsers = $this->newsRedisHelper->getClosestUsers($userId);
+        $recentlyArray = [];
+        foreach ($closestUsers as $currentUser) {
+            $currentRecently = $this->newsRedisHelper->getRecently($currentUser);
+            $recentlyArray = [...$recentlyArray, ...$currentRecently];
+        }
+
+        $aggregated = array_reduce($recentlyArray, function($acc, $item) {
+            $id = $item['id'];
+            if (!empty($acc[$id])) {
+                $acc[$id]['count']++;
+            } else {
+                $acc[$id] = ['count' => 1, 'item' => $item];
+            }
+            return $acc;
+        }, []);
+        usort($aggregated, function($a, $b) {
+            return $b['count'] - $a['count'];
+        });
+
+        $result = array_column($aggregated, 'item');
+        $result = array_slice($result, 0, 3);
+
+        $this->newsRedisHelper->setCityPopular($result, $userId);
+
+        return $result;
+    }
+
     public function getRecently($userId)
     {
         $recently = [];

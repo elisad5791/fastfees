@@ -66,23 +66,43 @@ class NewsRedisHelper
         $this->redis->set($cacheKey, $categoryTitle);
     }
 
-    public function getRecently($userId)
-    {
-        $cacheKey = "recent:user_{$userId}";
-        $data = $this->redis->lRange($cacheKey, 0, -1);
-
-        $recently = [];
-        foreach ($data as $item) {
-            $recently[] = json_decode($item, true);
-        }
-
-        return $recently;
-    }
-
     public function getPopular()
     {
-        $popular = $this->redis->zrevrange('news:top', 0, 4, ['WITHSCORES' => true]);
+        $popular = $this->redis->zrevrange('news:top', 0, 2, ['WITHSCORES' => true]);
         return $popular;
+    }
+
+    public function getCityPopular(int $userId): array
+    {
+        $key = "city_popular:user_{$userId}";
+        $data = $this->redis->get($key);
+        if (!empty($data)) {
+            $data = json_decode($data, true);
+        } else {
+            $data = [];
+        }
+        return $data;
+    }
+
+    public function setCityPopular(array $data, int $userId): void
+    {
+        if (empty($data) || empty($userId)) {
+            return;
+        }
+
+        $key = "city_popular:user_{$userId}";
+        $data = json_encode($data);
+        $this->redis->set($key, $data);
+        $this->redis->expire($key, 600);
+    }
+
+    public function getClosestUsers(int $userId): array
+    {
+        $key = 'userplaces';
+        $options = ['count' => 10];
+        $data = $this->redis->geoRadiusByMember($key, $userId, 50, 'km', $options);
+        $closestUsers = array_values(array_filter($data, fn($item) => $item != $userId));
+        return $closestUsers;
     }
 
     public function getItem($id)
@@ -127,12 +147,26 @@ class NewsRedisHelper
         return $views;
     }
 
-    public function updateRecently($userId, $shortItem)
+    public function getRecently(int $userId): array
+    {
+        $cacheKey = "recent:user_{$userId}";
+        $data = $this->redis->lRange($cacheKey, 0, -1);
+
+        $recently = [];
+        foreach ($data as $item) {
+            $recently[] = json_decode($item, true);
+        }
+
+        return $recently;
+    }
+
+    public function updateRecently(int $userId, array $shortItem): void
     {
         $key = "recent:user_{$userId}";
         $val = json_encode($shortItem);
         $this->redis->lPush($key, $val);
         $this->redis->lTrim($key, 0, 4);
+        $this->redis->expire($key, 24 * 60 * 60);
     }
 
     public function getLikeCount($newsId)

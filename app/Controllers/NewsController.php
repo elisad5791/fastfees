@@ -17,7 +17,7 @@ class NewsController
         protected SessionHelper $sessionHelper
     ) {} 
 
-    public function index(Request $request, Response $response, $args) 
+    public function index(Request $request, Response $response, $args): Response
     {
         $queryParams = $request->getQueryParams();
         $page = (int) ($queryParams['page'] ?? 1);
@@ -28,6 +28,7 @@ class NewsController
         $newsData = $this->newsService->getNewsPage($page);
         $pages = $this->newsService->getPageCount();
         $popular = $this->newsService->getPopular();
+        $cityPopular = $this->newsService->getCityPopular($userId);
         $activeUsers = $this->userService->getActiveCount();
         $recently = $this->newsService->getRecently($userId);
 
@@ -40,6 +41,7 @@ class NewsController
             'message' => $newsData['message'],
             'username' => $username,
             'popular' => $popular,
+            'popular_city' => $cityPopular,
             'active_users' => $activeUsers,
             'recently' => $recently,
         ]);
