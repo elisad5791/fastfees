@@ -143,7 +143,7 @@ class NewsRedisHelper
 
     public function getViews($id)
     {
-        $views = $this->redis->zscore('news:top', $id);
+        $views = $this->redis->zScore('news:top', $id);
         return $views;
     }
 
@@ -282,5 +282,121 @@ class NewsRedisHelper
             $viewsData[] = ['id' => $newsId, 'views' => $viewsCounts[$ind]];
         }
         return $viewsData;
+    }
+
+    public function getPopularCategories(): array
+    {
+        $keys = $this->redis->keys('views:category_*');
+        $data = [];
+        $windowStart = floor(microtime(true)) - 3600;
+        foreach ($keys as $key) {
+            $categoryId = (int) str_replace('views:category_', '', $key);
+            $this->redis->zRemRangeByScore($key, 0, $windowStart);
+            $count = (int) $this->redis->zCard($key);
+            $data[$categoryId] = $count;
+        }
+
+        arsort($data, SORT_NUMERIC);
+        $ids = array_keys($data);
+        $categoryIds = array_slice($ids, 0, 5);
+
+        $result = [];
+        foreach ($categoryIds as $categoryId) {
+            $key = "views:title:category_$categoryId";
+            $title = $this->redis->get($key) ?: '';
+            $result[] = ['id' => $categoryId, 'title' => $title];
+        }
+
+        return $result;
+    }
+
+    public function getPopularTags(): array
+    {
+        $keys = $this->redis->keys('views:tag_*');
+        $data = [];
+        $windowStart = floor(microtime(true)) - 3600;
+        foreach ($keys as $key) {
+            $tagId = (int) str_replace('views:tag_', '', $key);
+            $this->redis->zRemRangeByScore($key, 0, $windowStart);
+            $count = (int) $this->redis->zCard($key);
+            $data[$tagId] = $count;
+        }
+
+        arsort($data, SORT_NUMERIC);
+        $ids = array_keys($data);
+        $tagIds = array_slice($ids, 0, 5);
+
+        $result = [];
+        foreach ($tagIds as $tagId) {
+            $key = "views:title:tag_$tagId";
+            $title = $this->redis->get($key) ?: '';
+            $result[] = ['id' => $tagId, 'title' => $title];
+        }
+
+        return $result;
+    }
+
+    public function getPopularNews(): array
+    {
+        $keys = $this->redis->keys('views:news_*');
+        $data = [];
+        $windowStart = floor(microtime(true)) - 3600;
+        foreach ($keys as $key) {
+            $newsId = (int) str_replace('views:news_', '', $key);
+            $this->redis->zRemRangeByScore($key, 0, $windowStart);
+            $count = (int) $this->redis->zCard($key);
+            $data[$newsId] = $count;
+        }
+
+        arsort($data, SORT_NUMERIC);
+        $ids = array_keys($data);
+        $newsIds = array_slice($ids, 0, 5);
+
+        $result = [];
+        foreach ($newsIds as $newsId) {
+            $key = "item:news_$newsId";
+            $news = $this->redis->get($key) ?: '';
+            $news = !empty($news) ? json_decode($news, true) : [];
+            $createdAt = $news['created_at'] ?? '';
+            $result[] = [
+                'id' => $newsId, 
+                'title' => $news['title'] ?? '',
+                'created_at' => !empty($createdAt) ? date('d.m.Y, H:i', strtotime($createdAt)) : '',
+            ];
+        }
+
+        return $result;
+    }
+
+    public function updateCategoryViews(int $categoryId, string $categoryTitle): void
+    {
+        $key = "views:category_$categoryId";
+        $now = floor(microtime(true));
+        $this->redis->zAdd($key, $now, $now);
+
+        $key = "views:title:category_$categoryId";
+        $this->redis->set($key, $categoryTitle);
+    }
+
+    public function updateTagsViews(array $tags): void
+    {
+        foreach ($tags as $tag) {
+            $tagId = $tag['id'];
+            $tagTitle = $tag['title'];
+
+            $key = "views:tag_$tagId";
+            $now = floor(microtime(true));
+            $this->redis->zAdd($key, $now, $now);
+
+            $key = "views:title:tag_$tagId";
+            $this->redis->set($key, $tagTitle);
+        }
+    }
+
+    public function updateNewsViews(int $newsId): void
+    {
+        $key = "views:news_$newsId";
+        $now = floor(microtime(true));
+        $this->redis->zAdd($key, $now, $now);
     }
 }

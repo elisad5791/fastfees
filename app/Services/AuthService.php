@@ -13,7 +13,7 @@ class AuthService
         protected UserRedisHelper $userRedisHelper
     ) {}
 
-    public function setUser($name)
+    public function setUser(string $name): int
     {
         $user = $this->userRepository->getUserByName($name);
         $userId = $user['id'] ?? null;
@@ -22,15 +22,17 @@ class AuthService
             $userId = $this->userRepository->createUser($name);
         }
 
+        $isAdmin = $user['is_admin'] == 1;
         $this->sessionHelper->setValues([
             ['key' => 'username', 'value' => $name],
             ['key' => 'userid', 'value' => $userId],
+            ['key' => 'admin', 'value' => $isAdmin],
         ]);
         
         return $userId;
     }
 
-    public function setLikes($userId)
+    public function setLikes(int $userId): void
     {
         $likes = $this->userRepository->getLikes($userId);
 

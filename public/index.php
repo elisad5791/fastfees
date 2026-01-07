@@ -5,6 +5,7 @@ use Slim\Factory\AppFactory;
 use App\Controllers\NewsController;
 use App\Controllers\AuthController;
 use App\Controllers\LikeController;
+use App\Controllers\AdminController;
 use Slim\Views\Twig;
 use Slim\Views\TwigMiddleware;
 use App\Middleware\CounterMiddleware;
@@ -35,6 +36,7 @@ $app->get('/news/{id}', [NewsController::class, 'showNews']);
 $app->get('/category/{id}', [NewsController::class, 'showCategory']);
 $app->get('/tag/{id}', [NewsController::class, 'showTag']);
 $app->get('/auth', [AuthController::class, 'index']);
+$app->get('/statistics', [AdminController::class, 'index']);
 
 $app->post('/submit-name', [AuthController::class, 'submitName']);
 $app->post('/add-like', [LikeController::class, 'addLike']);

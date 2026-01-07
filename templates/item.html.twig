@@ -10,6 +10,10 @@
     <h1 class="item-title">{{ item.title }} ({{ message }})</h1>
 
     <div class="login">
+        {% if is_admin %}
+            <a href="/statistics" class="login-link">Statistics</a>
+        {% endif %}
+        
         {% if username %}
             <span>{{ username }}</span>
         {% else %}

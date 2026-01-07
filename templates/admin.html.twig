@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Statistics</title>
+    <link href="/style.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1>Statistics</h1>
+</header>
+
+<div class="back-link">
+    <a href="/">← Back to site</a>
+</div>
+
+<div class="stat-container">
+    <div class="stat-item">
+        <div class="stat-title">Active users</div>
+        <div>{{ active_users }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-title">Users for last day</div>
+        <div>{{ day_users }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-title">Users for last hour</div>
+        <div>{{ hour_users }}</div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-title">Popular News</div>
+        <div>
+            {% for item in popular_news %}
+                <div class="popular-item">
+                    <small>{{ item.created_at }}</small>
+                    <a href="/news/{{ item.id }}" class="news-title">{{ item.title }}</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-title">Popular Categories</div>
+        <div>
+            {% for item in popular_categories %}
+                <div><a class="stat-link" href="/category/{{ item.id }}">{{ item.title }}</a></div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="stat-item">
+        <div class="stat-title">Popular Tags</div>
+        <div>
+            {% for item in popular_tags %}
+                <div><a class="stat-link" href="/tag/{{ item.id }}">{{ item.title }}</a></div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

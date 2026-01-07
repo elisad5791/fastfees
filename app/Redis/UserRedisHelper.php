@@ -91,6 +91,20 @@ class UserRedisHelper
             $this->redis->geoAdd($key, $lon, $lat, $userId);
             $this->redis->expire($key, 24 * 60 * 60);
         }
+
+        $this->trackUserQuantity($userId);
+    }
+
+    public function trackUserQuantity(int $userId): void
+    {
+        $key = "user:day:active";
+        $ttl = 24 * 60 * 60;
+        $now = floor(microtime(true));
+        $windowStart = $now - $ttl;
+
+        $this->redis->zAdd($key, $now, $userId);
+        $this->redis->zRemRangeByScore($key, 0, $windowStart);
+        $this->redis->expire($key, $ttl);
     }
 
     public function geoUserExists(int $userId): bool
@@ -98,5 +112,32 @@ class UserRedisHelper
         $key = "user_geo_active:{$userId}";
         $result = $this->redis->get($key);
         return (bool) $result;
+    }
+
+    public function getLastDayUsers(): int
+    {
+        $key = "user:day:active";
+        $ttl = 24 * 60 * 60;
+        $now = floor(microtime(true));
+        $windowStart = $now - $ttl;
+
+        $this->redis->zRemRangeByScore($key, 0, $windowStart);
+        $this->redis->expire($key, $ttl);
+        
+        $count = $this->redis->zCard($key);
+        return $count;
+    }
+
+    public function getLastHourUsers(): int
+    {
+        $key = "user:day:active";
+        $window = 60 * 60;
+        $now = floor(microtime(true));
+        $windowStart = $now - $window;
+
+        $this->redis->zRemRangeByScore($key, 0, $windowStart);
+        
+        $count = $this->redis->zCount($key, $windowStart, $now);
+        return $count;
     }
 }

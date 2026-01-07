@@ -24,6 +24,7 @@ class NewsController
         
         $username = $this->sessionHelper->getUsername();
         $userId = $this->sessionHelper->getUserId();
+        $isAdmin = $this->sessionHelper->getIsAdmin();
 
         $newsData = $this->newsService->getNewsPage($page);
         $pages = $this->newsService->getPageCount();
@@ -46,6 +47,7 @@ class NewsController
             'active_users' => $activeUsers,
             'recently' => $recently,
             'prefs' => $prefs,
+            'is_admin' => $isAdmin,
         ]);
     }
 
@@ -58,6 +60,7 @@ class NewsController
         
         $username = $this->sessionHelper->getUsername();
         $userId = $this->sessionHelper->getUserId();
+        $isAdmin = $this->sessionHelper->getIsAdmin();
         $activeUsers = $this->userService->getActiveCount();
 
         $like = $this->newsService->getCurrentLike($userId, $newsId);
@@ -68,6 +71,7 @@ class NewsController
         
         $this->newsService->updateRecently($userId, $newsData['item']);
         $this->newsService->updatePrefs($userId, $newsData['item']['category_id']);
+        $this->newsService->updatePopularViews($newsData['item']);
 
         $view = Twig::fromRequest($request);
     
@@ -81,6 +85,7 @@ class NewsController
             'like_count' => $likeCount,
             'tag_similar' => $tagSimilar,
             'category_similar' => $categorySimilar,
+            'is_admin' => $isAdmin,
         ]);
     }
 
@@ -90,6 +95,7 @@ class NewsController
 
         $data = $this->newsService->getCategoryData($categoryId);
         $username = $this->sessionHelper->getUsername();
+        $isAdmin = $this->sessionHelper->getIsAdmin();
         $activeUsers = $this->userService->getActiveCount();
 
         $view = Twig::fromRequest($request);
@@ -100,6 +106,7 @@ class NewsController
             'username' => $username,
             'title' => $data['category_title'],
             'active_users' => $activeUsers,
+            'is_admin' => $isAdmin,
         ]);
     }
 
@@ -109,6 +116,7 @@ class NewsController
 
         $data = $this->newsService->getTagData($tagId);
         $username = $this->sessionHelper->getUsername();
+        $isAdmin = $this->sessionHelper->getIsAdmin();
         $activeUsers = $this->userService->getActiveCount();
 
         $view = Twig::fromRequest($request);
@@ -119,6 +127,7 @@ class NewsController
             'username' => $username,
             'title' => $data['tag_title'],
             'active_users' => $activeUsers,
+            'is_admin' => $isAdmin,
         ]);
     }
 }

@@ -9,7 +9,7 @@ class UserRepository
         protected PDO $pdo
     ) {}
 
-    public function getUserByName($name)
+    public function getUserByName(string $name): array
     {
         $sql = "SELECT * FROM users WHERE first_name = ?";
         $stmt = $this->pdo->prepare($sql);
@@ -19,14 +19,21 @@ class UserRepository
         return $user;
     }
 
-    public function createUser($name)
+    public function createUser(string $name): array
     {
         $sql = "INSERT INTO users(first_name, last_name, email) VALUES(?, ?, ?)";
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute([$name, $name, $name . '@mail.ru']);
         $userId = $this->pdo->lastInsertId();
+        $user = [
+            'id' => $userId,
+            'first_name' => $name,
+            'last_name' => $name,
+            'email' => $name . '@mail.ru',
+            'is_admin' => 0,
+        ];
 
-        return $userId;
+        return $user;
     }
 
     public function getLikes($userId)

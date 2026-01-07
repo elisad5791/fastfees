@@ -346,4 +346,11 @@ class NewsService
             $this->newsRedisHelper->updatePrefs($userId, $categoryId);
         }
     }
+
+    public function updatePopularViews(array $item): void
+    {
+        $this->newsRedisHelper->updateCategoryViews($item['category_id'], $item['category_title']);
+        $this->newsRedisHelper->updateTagsViews($item['tags']);
+        $this->newsRedisHelper->updateNewsViews($item['id']);
+    }
 }
