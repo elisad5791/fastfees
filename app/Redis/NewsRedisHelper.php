@@ -68,7 +68,7 @@ class NewsRedisHelper
 
     public function getPopular()
     {
-        $popular = $this->redis->zrevrange('news:top', 0, 2, ['WITHSCORES' => true]);
+        $popular = $this->redis->zRevRange('news:top', 0, 2, ['WITHSCORES' => true]);
         return $popular;
     }
 
@@ -165,8 +165,37 @@ class NewsRedisHelper
         $key = "recent:user_{$userId}";
         $val = json_encode($shortItem);
         $this->redis->lPush($key, $val);
-        $this->redis->lTrim($key, 0, 4);
+        $this->redis->lTrim($key, 0, 2);
         $this->redis->expire($key, 24 * 60 * 60);
+    }
+
+    public function getRecommendations($userId): array
+    {
+        $key = "recommend:user_$userId";
+        $data = $this->redis->get($key);
+        $recommmend = !empty($data) ? json_decode($data, true) : [];
+        return $recommmend;
+    }
+
+    public function updateRecommendations(int $userId, array $prefs, int $ttl): void
+    {
+        $key = "recommend:user_$userId";
+        $this->redis->set($key, json_encode($prefs));
+        $this->redis->expire($key, $ttl);
+    }
+
+    public function updatePrefs(int $userId, int $categoryId): void
+    {
+        $key = "prefs:user_{$userId}";
+        $this->redis->zIncrBy($key, 1, $categoryId);
+        $this->redis->expire($key, 24 * 60 * 60);
+    }
+
+    public function getPrefs(int $userId): array
+    {
+        $key = "prefs:user_{$userId}";
+        $categoryIds = $this->redis->zRevRange($key, 0, 2);
+        return $categoryIds;
     }
 
     public function getLikeCount($newsId)

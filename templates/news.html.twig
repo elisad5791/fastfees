@@ -73,17 +73,31 @@
         {% endfor %}
     </div>
 
-    {% if recently %}
-        <div class="recently">
-            <h2>You read recently</h2>
-            {% for item in recently %}
-                <div class="popular-item">
-                    <small>{{ item.created_at }}</small>
-                    <a href="/news/{{ item.id }}" class="news-title">{{ item.title }}</a>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+    <div>
+        {% if recently %}
+            <div class="recently">
+                <h2>You read recently</h2>
+                {% for item in recently %}
+                    <div class="popular-item">
+                        <small>{{ item.created_at }}</small>
+                        <a href="/news/{{ item.id }}" class="news-title">{{ item.title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+        {% if prefs %}
+            <div class="recommendations">
+                <h2>Recommendations</h2>
+                {% for item in prefs %}
+                    <div class="popular-item">
+                        <small>{{ item.created_at }}</small>
+                        <a href="/news/{{ item.id }}" class="news-title">{{ item.title }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+    
 </div>
 
 <div class="pagination">

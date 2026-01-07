@@ -173,16 +173,6 @@ class NewsService
         return $result;
     }
 
-    public function getRecently($userId)
-    {
-        $recently = [];
-        if (!empty($userId)) {
-            $recently = $this->newsRedisHelper->getRecently($userId);
-        }
-
-        return $recently;
-    }
-
     public function getNews($newsId)
     {
         $cachedItem = $this->newsRedisHelper->getNews($newsId);
@@ -267,7 +257,17 @@ class NewsService
         return $categorySimilar;
     }
 
-    public function updateRecently($userId, $item)
+    public function getRecently(int $userId): array
+    {
+        $recently = [];
+        if (!empty($userId)) {
+            $recently = $this->newsRedisHelper->getRecently($userId);
+        }
+
+        return $recently;
+    }
+
+    public function updateRecently(int $userId, array $item): void
     {
         if (!empty($userId)) {
             $shortItem = [
@@ -276,6 +276,74 @@ class NewsService
                 'created_at' => $item['created_at'],
             ];
             $this->newsRedisHelper->updateRecently($userId, $shortItem);
+        }
+    }
+
+    public function getPrefs(int $userId): array
+    {
+        if (empty($userId)) {
+            return [];
+        }
+
+        $prefs = $this->newsRedisHelper->getRecommendations($userId);
+        if (empty($prefs)) {
+            $categoryIds = $this->newsRedisHelper->getPrefs($userId);
+            if (empty($categoryIds)) {
+                return [];
+            }
+
+            $count = count($categoryIds);
+            $category0 = 0;
+            $category1 = 0;
+            $category2 = 0;
+            $limit0 = 0;
+            $limit1 = 0;
+            $limit2 = 0;
+            $news0 = [];
+            $news1 = [];
+            $news2 = [];
+
+            switch ($count) {
+                case 1:
+                    $category0 = $categoryIds[0];
+                    $limit0 = 3;
+                    break;
+                case 2:
+                    $category0 = $categoryIds[0];
+                    $category1 = $categoryIds[1];
+                    $limit0 = 2;
+                    $limit1 = 1;
+                    break;
+                case 3:
+                    $category0 = $categoryIds[0];
+                    $category1 = $categoryIds[1];
+                    $category2 = $categoryIds[2];
+                    $limit0 = 1;
+                    $limit1 = 1;
+                    $limit2 = 1;
+                    break;
+            }
+            if (!empty($category0)) {
+                $news0 = $this->newsRepository->getRandomNewsFromCategory($category0, $limit0);
+            }
+            if (!empty($category1)) {
+                $news1 = $this->newsRepository->getRandomNewsFromCategory($category1, $limit1);
+            }
+            if (!empty($category2)) {
+                $news2 = $this->newsRepository->getRandomNewsFromCategory($category2, $limit2);
+            }
+            $prefs = [...$news0, ...$news1, ...$news2];
+            $ttl = $count * 100;
+            $this->newsRedisHelper->updateRecommendations($userId, $prefs, $ttl);
+        }
+
+        return $prefs;
+    }
+
+    public function updatePrefs(int $userId, int $categoryId): void
+    {
+        if (!empty($userId)) {
+            $this->newsRedisHelper->updatePrefs($userId, $categoryId);
         }
     }
 }

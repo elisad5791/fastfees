@@ -31,6 +31,7 @@ class NewsController
         $cityPopular = $this->newsService->getCityPopular($userId);
         $activeUsers = $this->userService->getActiveCount();
         $recently = $this->newsService->getRecently($userId);
+        $prefs = $this->newsService->getPrefs($userId);
 
         $view = Twig::fromRequest($request);
     
@@ -44,6 +45,7 @@ class NewsController
             'popular_city' => $cityPopular,
             'active_users' => $activeUsers,
             'recently' => $recently,
+            'prefs' => $prefs,
         ]);
     }
 
@@ -65,6 +67,7 @@ class NewsController
         $categorySimilar = $this->newsService->getCategorySimilar($newsId);
         
         $this->newsService->updateRecently($userId, $newsData['item']);
+        $this->newsService->updatePrefs($userId, $newsData['item']['category_id']);
 
         $view = Twig::fromRequest($request);
     

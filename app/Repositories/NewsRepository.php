@@ -194,4 +194,18 @@ class NewsRepository
         $stmt = $this->pdo->prepare($sql);
         $stmt->execute($params);
     }
+
+    public function getRandomNewsFromCategory($categoryId, $count): array
+    {
+        $sql = "SELECT id, title, created_at
+            FROM news
+            WHERE category_id = ?
+            LIMIT ?";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute([$categoryId, $count]);
+        $news = $stmt->fetchAll();
+
+        return $news;
+    }
 }
