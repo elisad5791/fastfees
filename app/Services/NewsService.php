@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Redis\NewsRedisHelper;
+use App\Redis\SearchRedisHelper;
 use App\Repositories\NewsRepository;
 
 class NewsService
@@ -11,7 +12,8 @@ class NewsService
     
     public function __construct(
         protected NewsRepository $newsRepository,
-        protected NewsRedisHelper $newsRedisHelper
+        protected NewsRedisHelper $newsRedisHelper,
+        protected SearchRedisHelper $searchRedisHelper
     ) {}
 
     public function getTagData(int $tagId): array
@@ -352,5 +354,10 @@ class NewsService
         $this->newsRedisHelper->updateCategoryViews($item['category_id'], $item['category_title']);
         $this->newsRedisHelper->updateTagsViews($item['tags']);
         $this->newsRedisHelper->updateNewsViews($item['id']);
+    }
+
+    public function addNewsInSearch(array $item): void
+    {
+        $this->searchRedisHelper->addNews($item);
     }
 }

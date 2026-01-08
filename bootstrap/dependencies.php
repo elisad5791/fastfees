@@ -1,5 +1,7 @@
 <?php
 use DI\Container;
+use Psr\Log\NullLogger;
+use Ehann\RedisRaw\PhpRedisAdapter;
 
 $container = new Container ();
 
@@ -34,6 +36,22 @@ $container->set(Redis::class, function () use ($settings) {
     $redis->auth($password);
 
     return $redis;
+});
+
+$container->set(PhpRedisAdapter::class, function () use ($settings) {
+    $host = $settings['redis']['host'];
+    $port = $settings['redis']['port'];
+    $password = $settings['redis']['password'];
+
+    $redis = new Redis();
+    $redis->connect($host, $port);
+    $redis->auth($password);
+
+    $redisAdapter = new PhpRedisAdapter();
+    $redisAdapter->redis = $redis;
+    $redisAdapter->setLogger(new NullLogger());
+
+    return $redisAdapter;
 });
 
 return $container;

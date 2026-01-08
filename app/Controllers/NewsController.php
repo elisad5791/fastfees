@@ -57,6 +57,7 @@ class NewsController
 
         $newsData = $this->newsService->getNews($newsId);
         $viewsCount = $this->newsService->getViewsCount($newsId);
+        $item = $newsData['item'];
         
         $username = $this->sessionHelper->getUsername();
         $userId = $this->sessionHelper->getUserId();
@@ -69,14 +70,15 @@ class NewsController
         $tagSimilar = $this->newsService->getTagSimilar($newsId);
         $categorySimilar = $this->newsService->getCategorySimilar($newsId);
         
-        $this->newsService->updateRecently($userId, $newsData['item']);
-        $this->newsService->updatePrefs($userId, $newsData['item']['category_id']);
-        $this->newsService->updatePopularViews($newsData['item']);
+        $this->newsService->updateRecently($userId, $item);
+        $this->newsService->updatePrefs($userId, $item['category_id']);
+        $this->newsService->updatePopularViews($item);
+        $this->newsService->addNewsInSearch($item);
 
         $view = Twig::fromRequest($request);
     
         return $view->render($response, 'item.html.twig', [
-            'item' => $newsData['item'],
+            'item' => $item,
             'views' => $viewsCount,
             'username' => $username,
             'message' => $newsData['message'],

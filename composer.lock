@@ -4,8 +4,119 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "641acaec3ea22e921898d59d0338f4bb",
+    "content-hash": "c9fa9843ec1c8937844699437e00a972",
     "packages": [
+        {
+            "name": "ethanhann/redis-raw",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ethanhann/redis-raw-php.git",
+                "reference": "3afdddd20358ecbe53d975c6d0ea750fcaaa3d92"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ethanhann/redis-raw-php/zipball/3afdddd20358ecbe53d975c6d0ea750fcaaa3d92",
+                "reference": "3afdddd20358ecbe53d975c6d0ea750fcaaa3d92",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8",
+                "psr/log": "^3.0.0"
+            },
+            "require-dev": {
+                "cheprasov/php-redis-client": "^1.10.0",
+                "consolidation/robo": "^4.0.0-alpha1",
+                "friendsofphp/php-cs-fixer": "^v3.10.0",
+                "mockery/mockery": "^1.5.0",
+                "monolog/monolog": "^3.2.0",
+                "phpunit/phpunit": "^9",
+                "predis/predis": "~v2.0.0",
+                "ukko/phpredis-phpdoc": "^5.0.1-beta8"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ehann\\RedisRaw\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ethan Hann",
+                    "email": "ethanhann@gmail.com"
+                }
+            ],
+            "description": "Redis/PHP connectors.",
+            "support": {
+                "issues": "https://github.com/ethanhann/redis-raw-php/issues",
+                "source": "https://github.com/ethanhann/redis-raw-php/tree/2.1.0"
+            },
+            "time": "2022-08-24T05:18:55+00:00"
+        },
+        {
+            "name": "ethanhann/redisearch-php",
+            "version": "2.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ethanhann/redisearch-php.git",
+                "reference": "506bdae9f456a16d57f8a89e94a2caaa60d8ef58"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ethanhann/redisearch-php/zipball/506bdae9f456a16d57f8a89e94a2caaa60d8ef58",
+                "reference": "506bdae9f456a16d57f8a89e94a2caaa60d8ef58",
+                "shasum": ""
+            },
+            "require": {
+                "ethanhann/redis-raw": "^2.1.0",
+                "php": ">=8.2",
+                "psr/log": "^3.0.0"
+            },
+            "require-dev": {
+                "cheprasov/php-redis-client": "^1.9",
+                "consolidation/robo": "^4.0.0-alpha1",
+                "friendsofphp/php-cs-fixer": "^v3.10.0",
+                "mockery/mockery": "^1.5.0",
+                "monolog/monolog": "^3.2.0",
+                "phpunit/phpunit": "^9.5.23",
+                "predis/predis": "^v2.0.0",
+                "ukko/phpredis-phpdoc": "^5.0@beta"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Ehann\\RediSearch\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Ethan Hann",
+                    "email": "ethanhann@gmail.com"
+                }
+            ],
+            "support": {
+                "source": "https://github.com/ethanhann/redisearch-php/tree/2.1.0"
+            },
+            "funding": [
+                {
+                    "url": "https://www.paypal.com/paypalme/EthanHann",
+                    "type": "custom"
+                },
+                {
+                    "url": "https://ko-fi.com/ethanhann",
+                    "type": "ko_fi"
+                }
+            ],
+            "time": "2023-09-09T22:38:01+00:00"
+        },
         {
             "name": "fig/http-message-util",
             "version": "1.1.5",
