@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Поиск</title>
+    <link href="/style.css" rel="stylesheet">
+</head>
+<body>
+
+<header>
+    <h1>Поиск</h1>
+    <div class="login">
+        {% if is_admin %}
+            <a href="/statistics" class="login-link">Statistics</a>
+        {% endif %}
+        
+        {% if username %}
+            <span>{{ username }}</span>
+        {% else %}
+            <a href="/auth" class="login-link">Войти</a>
+        {% endif %}
+    </div>
+</header>
+
+<div class="back-link">
+    <a href="/">← Назад к списку новостей</a>
+</div>
+
+<div class="search-container">
+    <form class="search-form" method="get" action="/search">
+        <input type="text" name="q" class="search-input" placeholder="Поиск по новостям" value="{{ q }}">
+        <button type="submit" class="search-btn">Найти</button>
+    </form>
+
+    {% if news %}
+        {% for item in news %}
+            <div class="news-item">
+                <div class="news-meta">
+                    <small>{{ item.created_at }}</small>
+                </div>
+                <a href="/news/{{ item.newsid }}" class="news-title">{{ item.title }}</a>
+            </div>
+        {% endfor %}
+    {% elseif q %}
+        <div>No news</div>
+    {% endif %}
+</div>
+
+</body>
+</html>

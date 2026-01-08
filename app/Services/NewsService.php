@@ -360,4 +360,10 @@ class NewsService
     {
         $this->searchRedisHelper->addNews($item);
     }
+
+    public function getSearchNews(string $q): array
+    {
+        $news = $this->searchRedisHelper->getSearchNews($q);
+        return $news;
+    }
 }
